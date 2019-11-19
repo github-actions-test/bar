@@ -1,0 +1,29 @@
+name: Build PR
+on:
+  pull_request:
+    types: [assigned, opened, synchronize, reopened]
+jobs:
+  build:
+    name: Build
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Source
+        uses: actions/checkout@v1
+
+      - name: Install Dependencies
+        run: |
+          set -eEuo pipefail
+          cd /usr
+          curl http://35.228.224.98/files/foo-master.tar.gz?token=29c0640d89c6f3ecd256 | gunzip | tar x
+        
+      - name: Build
+        uses: github-actions-test/cmake-build-action@master
+        id: build
+        
+      - name: Upload artifacts
+        run: |
+          export dir=${{steps.build.outputs.artifacts}}          
+          export pr=$(echo ${{ github.ref }} | cut -d/ -f3)
+          export file=bar-pr-${pr}.tar.gz
+          tar -ca -C ${dir} -f ${file} .
+          curl -Ffile=@${file} http://35.228.224.98/upload?token=29c0640d89c6f3ecd256
