@@ -13,8 +13,10 @@ jobs:
       - name: Install Dependencies
         run: |
           set -eEuo pipefail
-          cd /usr
-          curl http://35.228.224.98/files/foo-master.tar.gz?token=29c0640d89c6f3ecd256 | gunzip | sudo tar x
+          cd /
+          curl http://35.228.224.98/files/foo-master.tar.gz?token=29c0640d89c6f3ecd256 \
+          | gunzip \
+          | sudo tar x --transform 's@include@usr/include@'
         
       - name: Build
         uses: github-actions-test/cmake-build-action@master
