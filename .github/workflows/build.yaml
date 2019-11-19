@@ -22,12 +22,17 @@ jobs:
           ls /usr/include/foo.hpp
         
       - name: Build
-        uses: github-actions-test/cmake-build-action@master
-        id: build
+        run: |
+          set -eEuo pipefail
+          set -x
+          mkdir build && cd $_
+          cmake -DCMAKE_INSTALL_PREFIX=install ..
+          make -j$(nproc)
+          make install
         
       - name: Upload artifacts
         run: |
-          export dir=${{steps.build.outputs.artifacts}}          
+          export dir=build/install
           export pr=$(echo ${{ github.ref }} | cut -d/ -f3)
           export file=bar-pr-${pr}.tar.gz
           tar -ca -C ${dir} -f ${file} .
