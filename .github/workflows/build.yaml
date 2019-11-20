@@ -11,13 +11,11 @@ jobs:
         uses: actions/checkout@v1
 
       - name: Start SSH Agent
-        if: github.event.pull_request.merged == true        
         uses: webfactory/ssh-agent@master
         with:
           ssh-private-key: ${{ secrets.SSH_PRIVATE_KEY }}
       
       - name: Checkout Meta Repository
-        if: github.event.pull_request.merged == true
         run: |
           set -eEuo pipefail
           set -x
@@ -43,9 +41,10 @@ jobs:
           }
           
           # Download artifacts for each submodule
-          (cd actions && parse-log) | while read -r submodule url; do
+          (cd actions && parse-log) | grep ^foo | while read -r submodule url; do
               echo "Downloading $url" >&2
-              curl --silent --fail $url | sudo tar -C / xz
+              echo "curl --fail $url | sudo tar -C / xz"
+              curl --fail $url | sudo tar -C / -xz --transform 's@include@usr/include@'
           done
         
       - name: Build
