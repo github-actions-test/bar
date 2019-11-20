@@ -41,7 +41,7 @@ jobs:
           # Construct the commit message so that the meta repo will be able to find the artifacts from this
           # build
           readonly branch=$(echo ${{ github.head_ref }} | cut -d/ -f3)
-          readonly msg="Update foo http://35.228.224.98/files/bar-pr-${branch}.tar.gz?token=29c0640d89c6f3ecd256"
+          readonly msg="Update bar http://35.228.224.98/files/bar-pr-${branch}.tar.gz?token=29c0640d89c6f3ecd256"
 
           # Update the meta repository with the current bar master
           cd ..
