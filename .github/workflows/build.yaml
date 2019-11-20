@@ -26,7 +26,7 @@ jobs:
         run: |
           set -eEuo pipefail
 
-          actions/bin/artifacts --include bar | while read -r submodule url; do
+          actions/bin/artifacts --include foo | while read -r submodule url; do
               echo "Downloading $url" >&2
               curl --fail $url | sudo tar -C / -xz --transform 's@include@usr/include@'
           done
