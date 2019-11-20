@@ -10,7 +10,7 @@ jobs:
       - name: Gather Intelligence
         id: info
         run: |
-          set -eEuo piefail
+          set -eEuo pipefail
           echo ${{ github.repository }} | while IFS='/' read -r owner repository; do
               echo "::set-output name=owner::${owner}"
               echo "::set-output name=repository::${repository}"
