@@ -41,9 +41,9 @@ jobs:
           }
           
           # Download artifacts for each submodule
-          (cd actions && parse-log) | while read -r submodule url; do
+          (cd actions && parse-log) | grep ^foo | while read -r submodule url; do
               echo "Downloading $url" >&2
-              curl --silent --fail $url | sudo tar -C / xz
+              curl --fail $url | sudo tar -C / xz
           done
         
       - name: Build
