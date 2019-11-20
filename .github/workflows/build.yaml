@@ -25,25 +25,9 @@ jobs:
       - name: Install Dependencies
         run: |
           set -eEuo pipefail
-          set -x
 
-          # Parse the git log and find the artifacts for each submodule.
-          # The function expects that the git log contains entries like
-          #   Update foo http://www.download.com/foo.tar.gz
-          # It traverses the whole commit log and finds the latest entry for
-          # each submodule.
-          parse-log() {
-              local -r aggregate='BEGIN {FS=OFS=SUBSEP=" "}{arr[$1] = $2} END {for (i in arr) print i,arr[i]}'
-              local -r pattern='Update .+ https?://[a-zA-Z0-9./?=_-]*'
-              git log --reverse --pretty=%B | grep -E "$pattern" | while read -r x; do
-                  echo $x | cut -d' ' -f2,3
-              done | awk "$aggregate"
-          }
-          
-          # Download artifacts for each submodule
-          (cd actions && parse-log) | grep ^foo | while read -r submodule url; do
+          actions/bin/artifacts --include bar | while read -r submodule url; do
               echo "Downloading $url" >&2
-              echo "curl --fail $url | sudo tar -C / xz"
               curl --fail $url | sudo tar -C / -xz --transform 's@include@usr/include@'
           done
         
