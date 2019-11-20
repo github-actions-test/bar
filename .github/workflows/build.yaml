@@ -10,16 +10,43 @@ jobs:
       - name: Checkout Source
         uses: actions/checkout@v1
 
+      - name: Start SSH Agent
+        if: github.event.pull_request.merged == true        
+        uses: webfactory/ssh-agent@master
+        with:
+          ssh-private-key: ${{ secrets.SSH_PRIVATE_KEY }}
+      
+      - name: Checkout Meta Repository
+        if: github.event.pull_request.merged == true
+        run: |
+          set -eEuo pipefail
+          set -x
+          export GIT_SSH_COMMAND="ssh -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no"
+          git clone git@github.com:github-actions-test/actions.git
+        
       - name: Install Dependencies
         run: |
           set -eEuo pipefail
           set -x
-          cd /
-          curl http://35.228.224.98/files/foo-master.tar.gz?token=29c0640d89c6f3ecd256 \
-              | gunzip \
-              | sudo tar xv --transform 's@include@usr/include@' --transform 's@lib64@lib@'
-          ls /lib/libfoo.so
-          ls /usr/include/foo.hpp
+
+          # Parse the git log and find the artifacts for each submodule.
+          # The function expects that the git log contains entries like
+          #   Update foo http://www.download.com/foo.tar.gz
+          # It traverses the whole commit log and finds the latest entry for
+          # each submodule.
+          parse-log() {
+              local -r aggregate='BEGIN {FS=OFS=SUBSEP=" "}{arr[$1] = $2} END {for (i in arr) print i,arr[i]}'
+              local -r pattern='Update .+ https?://[a-zA-Z0-9./?=_-]*'
+              git log --reverse --pretty=%B | grep -E "$pattern" | while read -r x; do
+                  echo $x | cut -d' ' -f2,3
+              done | awk "$aggregate"
+          }
+          
+          # Download artifacts for each submodule
+          (cd actions && parse-log) | while read -r submodule url; do
+              echo "Downloading $url" >&2
+              curl --silent --fail $url | sudo tar -C / xz
+          done
         
       - name: Build
         run: |
@@ -33,7 +60,6 @@ jobs:
       - name: Upload artifacts
         run: |
           export dir=build/install
-          export pr=$(echo ${{ github.ref }} | cut -d/ -f3)
-          export file=bar-pr-${pr}.tar.gz
+          export file=bar-pr-$(echo ${{ github.head_ref }} | cut -d/ -f3).tar.gz
           tar -ca -C ${dir} -f ${file} .
           curl -Ffile=@${file} http://35.228.224.98/upload?token=29c0640d89c6f3ecd256
