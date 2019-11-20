@@ -44,7 +44,7 @@ jobs:
           (cd actions && parse-log) | grep ^foo | while read -r submodule url; do
               echo "Downloading $url" >&2
               echo "curl --fail $url | sudo tar -C / xz"
-              curl --fail $url | sudo tar -C / -xz
+              curl --fail $url | sudo tar -C / -xz --transform 's@include@usr/include@'
           done
         
       - name: Build
