@@ -34,7 +34,7 @@ jobs:
       - name: Install Dependencies
         run: |
           set -eEuo pipefail
-          sudo actions/bin/artifacts --download --silent --extract-path / --include foo
+          actions/bin/artifacts --download --silent --extract-path . --include foo
         
       - name: Build
         run: |
