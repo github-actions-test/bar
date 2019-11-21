@@ -35,7 +35,7 @@ jobs:
         run: |
           set -eEuo pipefail
           cat actions/bin/artifacts
-          sudo actions/bin/artifacts --download --extract-path / --include foo
+          actions/bin/artifacts --include foo
         
       - name: Build
         run: |
