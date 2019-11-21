@@ -34,10 +34,7 @@ jobs:
       - name: Install Dependencies
         run: |
           set -eEuo pipefail
-          actions/bin/artifacts --include foo | while read -r submodule url; do
-              echo "Downloading $url" >&2
-              curl --fail $url | sudo tar -C / -xz --transform 's@include@usr/include@'
-          done
+          sudo actions/bin/artifacts --download --extract-path / --include foo
         
       - name: Build
         run: |
