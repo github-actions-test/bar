@@ -34,8 +34,8 @@ jobs:
       - name: Install Dependencies
         run: |
           set -eEuo pipefail
-          cat actions/bin/artifacts
-          actions/bin/artifacts --include foo
+          actions/bin/artifacts --include foo || true
+          
         
       - name: Build
         run: |
