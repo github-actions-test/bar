@@ -1,10 +1,10 @@
-name: Build PR
+name: Verify Pull Request
 on:
   pull_request:
     types: [assigned, opened, synchronize, reopened]
 jobs:
   build:
-    name: Build
+    name: Verify
     runs-on: ubuntu-latest
     steps:
       - name: Gather Intelligence
